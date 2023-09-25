@@ -6,17 +6,24 @@ import { Input } from "@components/Input"
 import { Button } from "@components/Button"
 import { useNavigation } from "@react-navigation/native"
 
+type FormDataProps = {
+  name: string
+  email: string
+  password: string
+  password_confirm: string
+}
+
 export function SignUp() {
   const navigation = useNavigation()
 
-  const { control } = useForm()
+  const { control, handleSubmit } = useForm<FormDataProps>()
 
   function handleGoBack() {
     navigation.goBack()
   }
 
-  function handleSignUp() {
-
+  function handleSignUp(data: FormDataProps) {
+    console.log(data)
   }
 
   return (
@@ -96,13 +103,15 @@ export function SignUp() {
                 secureTextEntry
                 onChangeText={onChange}
                 value={value}
+                onSubmitEditing={handleSubmit(handleSignUp)}
+                returnKeyType="send"
               />
             )}
           />
 
           <Button
             title="Criar e acessar"
-            onPress={handleSignUp}
+            onPress={handleSubmit(handleSignUp)}
           />
         </Center>
 
