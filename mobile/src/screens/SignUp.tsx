@@ -1,6 +1,7 @@
 import { VStack, Image, Text, Center, Heading, ScrollView } from "native-base"
 import { useForm, Controller } from 'react-hook-form'
 import * as yup from 'yup'
+import { api } from '@services/api'
 import { yupResolver } from '@hookform/resolvers/yup'
 import LogoSvg from '@assets/logo.svg'
 import BackgroundImg from '@assets/background.png'
@@ -34,21 +35,13 @@ export function SignUp() {
   }
 
   async function handleSignUp({ name, email, password }: FormDataProps) {
-    const response = await fetch('http://192.168.100.9:3333/users', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        name,
-        email,
-        password
-      })
+    const response = await api.post('/users', {
+      name,
+      email,
+      password
     })
 
-    const data = await response.json()
-    console.log(data)
+    console.log(response.data)
   }
 
   return (
