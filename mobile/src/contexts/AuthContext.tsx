@@ -9,7 +9,7 @@ type AuthContextProviderProps = {
   children: ReactNode
 }
 
-const AuthContext = createContext<AuthContextDataProps>({} as AuthContextDataProps)
+export const AuthContext = createContext<AuthContextDataProps>({} as AuthContextDataProps)
 
 export function AuthContextProvider({ children }: AuthContextProviderProps) {
   return (
@@ -17,7 +17,7 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
       user: {
         id: '1',
         name: 'Zenky',
-        email: 'rodrigo.png',
+        email: 'bzenky@gmail.com',
         avatar: 'https://www.github.com/bzenky.png'
       }
     }}>
