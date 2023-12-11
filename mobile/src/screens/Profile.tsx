@@ -1,20 +1,37 @@
 import { useState } from "react"
 import { TouchableOpacity } from "react-native"
 import { Center, Heading, ScrollView, Skeleton, Text, VStack, useToast } from "native-base"
+import { Controller, useForm } from "react-hook-form"
 import { ScreenHeader } from "@components/ScreenHeader"
 import { UserPhoto } from "@components/UserPhoto"
 import { Input } from "@components/Input"
 import { Button } from "@components/Button"
 import * as ImagePicker from 'expo-image-picker'
 import * as FileSystem from 'expo-file-system'
+import { useAuth } from "@hooks/useAuth"
 
 const PHOTO_SIZE = 33
+
+type FormDataProps = {
+  name: string
+  email: string
+  password: string
+  old_password: string
+  confirm_password: string
+}
 
 export function Profile() {
   const [photoIsLoading, setPhotoIsLoading] = useState(false)
   const [userPhoto, setUserPhoto] = useState('https://github.com/bzenky.png')
+  const { user } = useAuth()
 
   const toast = useToast()
+  const { control } = useForm<FormDataProps>({
+    defaultValues: {
+      name: user.name,
+      email: user.email,
+    }
+  })
 
   async function handleUserPhotoSelect() {
     setPhotoIsLoading(true)
@@ -78,15 +95,30 @@ export function Profile() {
             </Text>
           </TouchableOpacity>
 
-          <Input
-            bg="gray.600"
-            placeholder="Nome"
+          <Controller
+            control={control}
+            name="name"
+            render={({ field: { onChange, value } }) => (
+              <Input
+                placeholder="Nome"
+                onChangeText={onChange}
+                value={value}
+                bg="gray.600"
+              />
+            )}
           />
 
-          <Input
-            bg="gray.600"
-            placeholder="E-mail"
-            isDisabled
+          <Controller
+            control={control}
+            name="email"
+            render={({ field: { value } }) => (
+              <Input
+                placeholder="E-mail"
+                value={value}
+                bg="gray.600"
+                isDisabled
+              />
+            )}
           />
 
           <Heading
