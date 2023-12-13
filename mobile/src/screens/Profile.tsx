@@ -13,6 +13,7 @@ import { useAuth } from "@hooks/useAuth"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { AppError } from "@utils/AppError"
 import { api } from "@services/api"
+import defaultUserPhotoImg from "@assets/userPhotoDefault.png"
 
 const PHOTO_SIZE = 33
 
@@ -43,7 +44,6 @@ const profileSchema = yup.object({
 export function Profile() {
   const [photoIsLoading, setPhotoIsLoading] = useState(false)
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false)
-  const [userPhoto, setUserPhoto] = useState('https://github.com/bzenky.png')
   const { user, updateUserProfile } = useAuth()
 
   const toast = useToast()
@@ -79,17 +79,48 @@ export function Profile() {
           })
         }
 
-        setUserPhoto(photoSelected.assets[0].uri)
+        const fileExtension = photoSelected.assets[0].uri.split('.').pop()
+
+        const photoFile = {
+          name: `${user.name}.${fileExtension}`.toLowerCase(),
+          uri: photoSelected.assets[0].uri,
+          type: `${photoSelected.assets[0].type}/${fileExtension}`
+        } as any
+
+        const userPhotoUploadForm = new FormData()
+        userPhotoUploadForm.append('avatar', photoFile)
+
+        const response = await api.patch('users/avatar', userPhotoUploadForm, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        })
+
+        const userUpdated = user
+        userUpdated.avatar = response.data.avatar
+        updateUserProfile(userUpdated)
+
+        toast.show({
+          title: 'Foto atualizada!',
+          placement: 'top',
+          bgColor: 'green.500'
+        })
       }
     } catch (error) {
-      console.log(error)
+      const isAppError = error instanceof AppError
+      const title = isAppError ? error.message : 'Não foi possível atualizar a foto.'
+
+      toast.show({
+        title,
+        placement: 'top',
+        bgColor: 'red.500'
+      })
     } finally {
       setPhotoIsLoading(false)
     }
   }
 
   async function handleProfileUpdate(data: FormDataProps) {
-    console.log({ data })
     try {
       setIsUpdatingProfile(true)
 
@@ -135,7 +166,10 @@ export function Profile() {
                 endColor='gray.400'
               />
               : <UserPhoto
-                source={{ uri: userPhoto }}
+                source={
+                  user.avatar
+                    ? { uri: `${api.defaults.baseURL}/avatar/${user.avatar}` }
+                    : defaultUserPhotoImg}
                 alt='Foto do usuário'
                 size={PHOTO_SIZE}
               />
